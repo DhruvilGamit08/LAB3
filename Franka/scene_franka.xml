@@ -1,0 +1,102 @@
+<mujoco model="franka_7dof_pick_and_place">
+    <compiler angle="radian" meshdir="assets" autolimits="true"/>
+    <option gravity="0 0 -9.81" timestep="0.002"/>
+
+    <visual>
+        <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0 0 0"/>
+        <global azimuth="130" elevation="-30"/>
+    </visual>
+
+    <asset>
+        <texture type="2d" name="groundplane" builtin="checker" rgb1="0.2 0.3 0.4" rgb2="0.1 0.2 0.3" width="100" height="100" mark="edge" markrgb="0.8 0.8 0.8"/>
+        <material name="groundplane" texture="groundplane" texrepeat="20 20" reflectance="0.2"/>
+        <material name="table_mat" rgba="0.55 0.35 0.15 1"/>
+        <material name="cube_mat" rgba="0.9 0.1 0.1 1"/>
+        <material name="tray_mat" rgba="0.1 0.1 0.1 1"/>
+        <material name="robot_mat" rgba="0.9 0.9 0.9 1"/>
+    </asset>
+
+    <worldbody>
+        <light pos="0 0 3.0" dir="0 0 -1" directional="true"/>
+        <geom name="floor" type="plane" size="3 3 0.1" material="groundplane"/>
+
+        <!-- Table -->
+        <body name="table" pos="0.5 0.4 0.2">
+            <geom name="table_geom" type="box" size="0.4 0.6 0.2" material="table_mat"/>
+        </body>
+
+        <!-- 7-DOF Articulated Robot Base -->
+        <body name="base_link" pos="0 0.2 0.0">
+            <geom type="cylinder" size="0.09 0.1" pos="0 0 0.1" material="robot_mat"/>
+            <joint name="joint1" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+            
+            <body name="link1" pos="0 0 0.2">
+                <geom type="capsule" size="0.06 0.08" material="robot_mat" pos="0 0 0.08"/>
+                <joint name="joint2" type="hinge" axis="0 -1 0" range="-1.7628 1.7628"/>
+                
+                <body name="link2" pos="0 0 0.16">
+                    <geom type="capsule" size="0.05 0.1" material="robot_mat" pos="0 0 0.1"/>
+                    <joint name="joint3" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+                    
+                    <body name="link3" pos="0 0 0.2">
+                        <geom type="capsule" size="0.045 0.1" material="robot_mat" pos="0 0 0.1"/>
+                        <joint name="joint4" type="hinge" axis="0 -1 0" range="-3.0718 -0.0698"/>
+                        
+                        <body name="link4" pos="0 0 0.2">
+                            <geom type="capsule" size="0.04 0.08" material="robot_mat" pos="0 0 0.08"/>
+                            <joint name="joint5" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+                            
+                            <body name="link5" pos="0 0 0.16">
+                                <geom type="capsule" size="0.035 0.06" material="robot_mat" pos="0 0 0.06"/>
+                                <joint name="joint6" type="hinge" axis="0 1 0" range="-0.0175 3.7525"/>
+                                
+                                <body name="link6" pos="0 0 0.12">
+                                    <geom type="capsule" size="0.03 0.04" material="robot_mat" pos="0 0 0.04"/>
+                                    <joint name="joint7" type="hinge" axis="0 0 1" range="-2.8973 2.8973"/>
+                                    
+                                    <!-- Gripper -->
+                                    <body name="gripper_base" pos="0 0 0.08">
+                                        <geom type="box" size="0.03 0.05 0.02" material="robot_mat"/>
+                                        <site name="ee_site" pos="0 0 0.04" size="0.005"/>
+                                        
+                                        <body name="left_finger" pos="0 0.02 0.04">
+                                            <joint name="finger_joint1" type="slide" axis="0 -1 0" range="0 0.025"/>
+                                            <geom type="box" size="0.01 0.008 0.02" rgba="0.2 0.2 0.2 1"/>
+                                        </body>
+                                        <body name="right_finger" pos="0 -0.02 0.04">
+                                            <joint name="finger_joint2" type="slide" axis="0 1 0" range="0 0.025"/>
+                                            <geom type="box" size="0.01 0.008 0.02" rgba="0.2 0.2 0.2 1"/>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+        <!-- Red Cube on Table -->
+        <body name="cube" pos="0.38 0.35 0.422">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.02" material="cube_mat" mass="0.04"/>
+        </body>
+
+        <!-- Black Box / Tray on Table -->
+        <body name="tray" pos="0.38 0.50 0.41">
+            <freejoint/>
+            <geom type="box" size="0.06 0.06 0.01" material="tray_mat" mass="0.1"/>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <motor name="act_j1" joint="joint1" ctrlrange="-87 87"/>
+        <motor name="act_j2" joint="joint2" ctrlrange="-87 87"/>
+        <motor name="act_j3" joint="joint3" ctrlrange="-87 87"/>
+        <motor name="act_j4" joint="joint4" ctrlrange="-87 87"/>
+        <motor name="act_j5" joint="joint5" ctrlrange="-12 12"/>
+        <motor name="act_j6" joint="joint6" ctrlrange="-12 12"/>
+        <motor name="act_j7" joint="joint7" ctrlrange="-12 12"/>
+        <position name="fingers_actuator" joint="finger_joint1" kp="50" ctrlrange="0 0.025"/>
+    </actuator>
+</mujoco>
