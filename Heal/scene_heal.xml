@@ -1,0 +1,111 @@
+<mujoco model="addverb_heal_proper_6dof">
+  <compiler angle="radian" autolimits="true"/>
+  <option timestep="0.002" gravity="0 0 -9.81" integrator="implicitfast"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.3 0.3 0.3" specular="0.1 0.1 0.1"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="135" elevation="-25"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512" height="512"/>
+    <texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.18 0.26 0.34" rgb2="0.12 0.18 0.24" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+    <material name="groundplane" texture="groundplane" texuniform="true" texrepeat="4 4" reflectance="0.1"/>
+    <material name="heal_grey" rgba="0.55 0.57 0.6 1" specular="0.5" shininess="0.5"/>
+    <material name="dark_joint" rgba="0.15 0.15 0.15 1" specular="0.3"/>
+    <material name="table_wood" rgba="0.62 0.47 0.32 1" specular="0.1"/>
+  </asset>
+
+  <worldbody>
+    <light pos="0.5 0.5 3" dir="0 0 -1" directional="true"/>
+    <geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+
+    <!-- Proper 6-DOF Industrial Arm -->
+    <body name="base_link" pos="0.0 0.45 0.0">
+      <geom type="cylinder" size="0.1 0.04" pos="0 0 0.04" material="heal_grey"/>
+      <body name="link1" pos="0 0 0.08">
+        <joint name="joint1" type="hinge" axis="0 0 1" damping="5"/>
+        <geom type="cylinder" size="0.08 0.06" pos="0 0 0.06" material="heal_grey"/>
+        <body name="link2" pos="0 0 0.12">
+          <joint name="joint2" type="hinge" axis="0 1 0" damping="5"/>
+          <geom type="sphere" size="0.08" material="heal_grey"/>
+          <geom type="capsule" fromto="0 0 0 0 0 0.3" size="0.06" material="heal_grey"/>
+          <body name="link3" pos="0 0 0.3">
+            <joint name="joint3" type="hinge" axis="0 1 0" damping="5"/>
+            <geom type="sphere" size="0.07" material="heal_grey"/>
+            <geom type="capsule" fromto="0 0 0 0.25 0 0" size="0.05" material="heal_grey"/>
+            <body name="link4" pos="0.25 0 0">
+              <joint name="joint4" type="hinge" axis="0 1 0" damping="2"/>
+              <geom type="sphere" size="0.06" material="heal_grey"/>
+              <geom type="cylinder" size="0.05 0.04" pos="0 0 -0.04" material="heal_grey"/>
+              <body name="link5" pos="0 0 -0.08">
+                <joint name="joint5" type="hinge" axis="1 0 0" damping="2"/>
+                <geom type="cylinder" size="0.045 0.04" euler="0 1.57 0" material="heal_grey"/>
+                <body name="link6" pos="0 0 -0.04">
+                  <joint name="joint6" type="hinge" axis="0 0 1" damping="1"/>
+                  <geom type="cylinder" size="0.04 0.02" material="dark_joint"/>
+                  
+                  <body name="gripper_base" pos="0 0 -0.02">
+                    <geom type="box" size="0.035 0.045 0.03" pos="0 0 -0.01" material="dark_joint"/>
+                    <site name="ee_site" pos="0 0 -0.1" size="0.005" rgba="1 0 0 0"/>
+                    <body name="left_finger" pos="0 0.03 -0.04">
+                      <joint name="left_finger_joint" type="slide" axis="0 -1 0" range="0 0.025" damping="2"/>
+                      <geom type="box" size="0.012 0.006 0.035" pos="0 0 -0.015" rgba="0.1 0.1 0.1 1" friction="2.0 0.05 0.001" condim="4"/>
+                      <geom type="box" size="0.012 0.003 0.015" pos="0 -0.005 -0.035" rgba="0.8 0.8 0.8 1" friction="2.5 0.05 0.001" condim="4"/>
+                    </body>
+                    <body name="right_finger" pos="0 -0.03 -0.04">
+                      <joint name="right_finger_joint" type="slide" axis="0 1 0" range="0 0.025" damping="2"/>
+                      <geom type="box" size="0.012 0.006 0.035" pos="0 0 -0.015" rgba="0.1 0.1 0.1 1" friction="2.0 0.05 0.001" condim="4"/>
+                      <geom type="box" size="0.012 0.003 0.015" pos="0 0.005 -0.035" rgba="0.8 0.8 0.8 1" friction="2.5 0.05 0.001" condim="4"/>
+                    </body>
+                  </body>
+                </body>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+
+    <!-- Table, Cube, and Tray -->
+    <body name="table" pos="0.5 0.45 0.2">
+      <geom name="table_top" type="box" size="0.32 0.38 0.02" pos="0 0 0.18" material="table_wood" friction="1 0.005 0.0001"/>
+      <geom name="table_base" type="box" size="0.28 0.34 0.18" pos="0 0 0" rgba="0.52 0.38 0.25 1"/>
+    </body>
+
+    <body name="cube" pos="0.381 0.569 0.422">
+      <freejoint name="cube_joint"/>
+      <geom name="cube_geom" type="box" size="0.02 0.02 0.02" rgba="0.9 0.1 0.1 1" mass="0.04" friction="2.0 0.05 0.001" condim="4"/>
+    </body>
+
+    <body name="tray" pos="0.6 0.4 0.405">
+      <geom name="tray_bottom" type="box" size="0.065 0.065 0.005" rgba="0.9 0.9 0.9 1"/>
+      <geom name="tray_wall1" type="box" size="0.065 0.005 0.025" pos="0 0.06 0.02" rgba="0.12 0.12 0.12 1"/>
+      <geom name="tray_wall2" type="box" size="0.065 0.005 0.025" pos="0 -0.06 0.02" rgba="0.12 0.12 0.12 1"/>
+      <geom name="tray_wall3" type="box" size="0.005 0.065 0.025" pos="0.06 0 0.02" rgba="0.12 0.12 0.12 1"/>
+      <geom name="tray_wall4" type="box" size="0.005 0.065 0.025" pos="-0.06 0 0.02" rgba="0.12 0.12 0.12 1"/>
+    </body>
+  </worldbody>
+
+  <tendon>
+    <fixed name="split">
+      <joint joint="left_finger_joint" coef="0.5"/>
+      <joint joint="right_finger_joint" coef="0.5"/>
+    </fixed>
+  </tendon>
+
+  <equality>
+    <joint joint1="left_finger_joint" joint2="right_finger_joint" polycoef="0 1 0 0 0"/>
+  </equality>
+
+  <actuator>
+    <motor name="mot1" joint="joint1" ctrlrange="-150 150"/>
+    <motor name="mot2" joint="joint2" ctrlrange="-150 150"/>
+    <motor name="mot3" joint="joint3" ctrlrange="-150 150"/>
+    <motor name="mot4" joint="joint4" ctrlrange="-100 100"/>
+    <motor name="mot5" joint="joint5" ctrlrange="-100 100"/>
+    <motor name="mot6" joint="joint6" ctrlrange="-50 50"/>
+    <position name="fingers_actuator" tendon="split" kp="200" ctrlrange="0 255" forcerange="-50 50"/>
+  </actuator>
+</mujoco>
